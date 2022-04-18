@@ -7,7 +7,8 @@ const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env
 
 passport.serializeUser((user, cb) => {
   process.nextTick(() => {
-    cb(null, { id: user.id, email: user.email, name: user.name })
+    cb(null, user)
+    // cb(null, { id: user.id, email: user.email, name: user.name })
   })
 })
 
@@ -21,6 +22,7 @@ const stategyOptions = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
   callbackURL: '/oauth/google/callback',
+  userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
   scope: ['profile', 'email'],
   state: false
 }
@@ -34,10 +36,10 @@ passport.use(new GoogleStrategy(stategyOptions, strategyUserIdentification))
 
 const router = express.Router()
 
-router.get('/login/federated/google', passport.authenticate('google'))
-router.get('/oauth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), controllers.auth.generateToken)
+router.get('/login/federated/google', controllers.auth.saveRedirectURI, passport.authenticate('google'))
+router.get('/oauth/google/callback', controllers.auth.getRedirectURI, passport.authenticate('google', { failureRedirect: '/login' }), controllers.auth.generateToken)
 
-router.post('/logout', (req, res, next) => {
+router.post('/logout', (req, res) => {
   req.logout()
   res.redirect('/')
 })

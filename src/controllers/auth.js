@@ -1,8 +1,28 @@
+import { URL } from 'url'
 import jwt from 'jsonwebtoken'
-import qs from 'qs'
 import logger from '../winston.js'
 
-const { JWT_SECRET, ISSUER, AUDIENCE } = process.env
+const { JWT_SECRET, ISSUER, AUDIENCE, ENV, BASE_URL, COOKIE_DURATION = '3600' } = process.env
+
+export const saveRedirectURI = async (req, res, next) => {
+  const { redirect_uri: redirectURI } = req.query
+  if (redirectURI) {
+    res.cookie('redirectURI', redirectURI, {
+      maxAge: parseInt(COOKIE_DURATION) * 1000,
+      httpOnly: true,
+      secure: ENV !== 'local',
+      sameSite: 'Lax'
+    })
+  }
+  next()
+}
+
+export const getRedirectURI = async (req, res, next) => {
+  logger.debug({ cookies: req.cookies })
+  const { redirectURI = BASE_URL } = req.cookies
+  req.redirectURI = redirectURI
+  next()
+}
 
 export const generateToken = async (req, res) => {
   const user = {
@@ -32,14 +52,18 @@ export const generateToken = async (req, res) => {
 
   logger.debug({ accessToken, idToken })
 
-  const query = qs.stringify({
-    access_token: accessToken,
-    id_token: idToken
-  })
+  const redirectURL = new URL(req.redirectURI)
 
-  res.redirect(`/auth/callback?${query}`)
+  redirectURL.searchParams.set('access_token', accessToken)
+  redirectURL.searchParams.set('id_token', idToken)
+
+  logger.debug({ redirectURI: req.redirectURI })
+
+  res.redirect(redirectURL)
 }
 
 export default {
-  generateToken
+  generateToken,
+  saveRedirectURI,
+  getRedirectURI
 }
