@@ -1,2 +1,2 @@
-# Talent API
+# Auth API
 
