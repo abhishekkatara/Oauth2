@@ -21,7 +21,7 @@ passport.deserializeUser((user, cb) => {
 const stategyOptions = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: '/oauth/google/callback',
+  callbackURL: '/auth/google/callback',
   userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
   scope: ['profile', 'email'],
   state: false
@@ -36,8 +36,8 @@ passport.use(new GoogleStrategy(stategyOptions, strategyUserIdentification))
 
 const router = express.Router()
 
-router.get('/login/federated/google', controllers.auth.saveRedirectURI, passport.authenticate('google'))
-router.get('/oauth/google/callback', controllers.auth.getRedirectURI, passport.authenticate('google', { failureRedirect: '/login' }), controllers.auth.generateToken)
+router.get('/login/google', controllers.auth.saveRedirectURI, passport.authenticate('google'))
+router.get('/google/callback', controllers.auth.getRedirectURI, passport.authenticate('google', { failureRedirect: '/login' }), controllers.auth.generateToken)
 
 router.post('/logout', (req, res) => {
   req.logout()
