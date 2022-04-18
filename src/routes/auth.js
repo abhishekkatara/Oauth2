@@ -21,7 +21,7 @@ passport.deserializeUser((user, cb) => {
 const stategyOptions = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: `${BASE_URL}/auth/google/callback`,
+  callbackURL: `${BASE_URL}/google/callback`,
   userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
   scope: ['profile', 'email'],
   state: false
