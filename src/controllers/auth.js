@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken'
+import qs from 'qs'
 import logger from '../winston.js'
 
-const { JWT_SECRET, ISSUER, AUD } = process.env
+const { JWT_SECRET, ISSUER, AUDIENCE } = process.env
 
 export const generateToken = async (req, res) => {
   const user = {
@@ -10,17 +11,17 @@ export const generateToken = async (req, res) => {
       last: req.user.name.familyName
     },
     email: {
-      value: req.user.emails[0].value,
-      verified: req.user.emails[0].verified
+      value: req.user.emails[0]?.value,
+      verified: req.user.emails[0]?.verified
     },
-    picture: req.user.photos[0].value
+    picture: req.user.photos[0]?.value
   }
 
   const tokenOpts = {
     subject: req.user.id,
     issuer: ISSUER,
-    audience: AUD,
-    algorithm: 'ES256',
+    audience: AUDIENCE,
+    algorithm: 'HS256',
     expiresIn: '1h'
   }
 
@@ -31,7 +32,12 @@ export const generateToken = async (req, res) => {
 
   logger.debug({ accessToken, idToken })
 
-  res.redirect(`/auth/callback?access_token=${accessToken}&id_token=${idToken}`)
+  const query = qs.stringify({
+    access_token: accessToken,
+    id_token: idToken
+  })
+
+  res.redirect(`/auth/callback?${query}`)
 }
 
 export default {
