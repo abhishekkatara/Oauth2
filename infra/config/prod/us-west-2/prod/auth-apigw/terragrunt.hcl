@@ -17,8 +17,8 @@ include {
   path = find_in_parent_folders()
 }
 
-dependency "talent-lambda" {
-  config_path = "../talent-lambda"
+dependency "auth-lambda" {
+  config_path = "../auth-lambda"
 
   # Configure mock outputs for the `validate` command that are returned when there are no outputs available (e.g the
   # module hasn't been applied yet.
