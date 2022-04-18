@@ -11,7 +11,7 @@ terraform {
 # CREATE S3 OBJECT
 # ------------------------------------------------------------------------------
 
-resource "aws_s3_object" "s3_talent_lambda" {
+resource "aws_s3_object" "s3_auth_lambda" {
   bucket       = "${var.prefix}-${var.env}-${var.lambda_bucket}"
   key          = "lambda/${var.lambda_name}.zip"
   source       = "${var.source_path}/${var.lambda_name}.zip"
@@ -27,12 +27,12 @@ resource "aws_s3_object" "s3_talent_lambda" {
 resource "aws_lambda_function" "lambda" {
   function_name     = var.lambda_name
   memory_size       = var.lambda_memory
-  s3_bucket         = aws_s3_object.s3_talent_lambda.bucket
-  s3_key            = aws_s3_object.s3_talent_lambda.key
-  s3_object_version = aws_s3_object.s3_talent_lambda.version_id
+  s3_bucket         = aws_s3_object.s3_auth_lambda.bucket
+  s3_key            = aws_s3_object.s3_auth_lambda.key
+  s3_object_version = aws_s3_object.s3_auth_lambda.version_id
   runtime           = var.runtime
   handler           = var.handler_name
-  role              = aws_iam_role.talent_lambda_exec.arn
+  role              = aws_iam_role.auth_lambda_exec.arn
 
   vpc_config {
     security_group_ids = length(var.security_group_ids) > 0 ? data.aws_ssm_parameter.sg_id[*].value : split(",", data.aws_ssm_parameter.default_sg_id.value)
