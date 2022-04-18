@@ -1,0 +1,60 @@
+#!/bin/sh
+
+DATE=$(date "+%Y-%m-%d")
+REMOTE=$(git remote get-url origin)
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  SED_FLAG="-E"
+else
+  SED_FLAG="-r"
+fi
+
+GIT_PATH=$(echo $REMOTE | sed $SED_FLAG "s/git@github.com:(.+)\.git/\1/g")
+
+if [[ "$LAST_VERSION$FIRST_TIME" == "" ]]; then
+  LAST_VERSION=$(git describe --abbrev=0 --tags)
+fi
+
+if [[ -z $FIST_TIME ]]; then
+  git log --format="%s" --no-merges > .gitlog
+else
+  git log $LAST_VERSION..HEAD --format="%s" --no-merges > .gitlog
+fi
+
+mv CHANGELOG.md prev-CHANGELOG.md
+echo "# [$NEW_VERSION](https://github.com/$GIT_PATH/tree/$NEW_VERSION) - $DATE" > CHANGELOG.md
+
+cat .gitlog | grep -e "^BREAKING CHANGE" > .gitlog-breaking
+cat .gitlog | grep -E "^[a-z]+(\([a-z]+\))?\!" >> .gitlog-breaking
+cat .gitlog | grep -e "^feat" > .gitlog-feat
+cat .gitlog | grep -e "^fix" > .gitlog-fix
+
+if [[ -s .gitlog-breaking ]]; then
+  echo "## BREAKING CHANGES" >> CHANGELOG.md
+  while read l; do
+    echo "- $l" >> CHANGELOG.md
+  done < .gitlog-breaking
+fi
+
+if [[ -s .gitlog-fix ]]; then
+  echo "## Fixes" >> CHANGELOG.md
+  while read l; do
+    echo "- $l" >> CHANGELOG.md
+  done < .gitlog-fix
+fi
+
+if [[ -s .gitlog-feat ]]; then
+  echo "## Features" >> CHANGELOG.md
+  while read l; do
+    echo "- $l" >> CHANGELOG.md
+  done < .gitlog-feat
+fi
+
+echo "" >> CHANGELOG.md 
+
+cat prev-CHANGELOG.md >> CHANGELOG.md
+
+rm prev-CHANGELOG.md
+rm .gitlog*
+
+echo "CHANGELOG updated for version $NEW_VERSION"

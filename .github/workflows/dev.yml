@@ -1,0 +1,65 @@
+name: DEV
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  lint:
+    uses: TLYNT/tlynt-auth-api/.github/workflows/lint.yml@main
+
+  test:
+    uses: TLYNT/tlynt-auth-api/.github/workflows/test.yml@main
+
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    needs:
+      - lint
+      - test
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - run: echo "NODE_VERSION=$(cat .node-version)" >> $GITHUB_ENV
+    
+    - name: Use Node ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v3.0.0
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Install dependencies
+      run: npm ci --ignore-scripts --omit=dev
+
+    - name: Make artifact
+      run: zip ./auth.zip -q -r src node_modules knexfile.js lambda.js package-lock.json package.json
+    
+    - name: Configure AWS credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-west-2
+        AWS_PROFILE: tlynt-dev
+      run: | 
+        aws configure set region $AWS_REGION --profile $AWS_PROFILE
+        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile $AWS_PROFILE
+        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile $AWS_PROFILE
+        aws configure set role_session_name "GitHub Action" --profile $AWS_PROFILE
+        aws configure set cli_follow_urlparam true --profile $AWS_PROFILE
+    
+    - name: Install terraform-env & terragrunt-env
+      run: make ci-install-terra-env
+        
+    - name: Install Terraform & Terraform
+      run: make set-terra-versions
+      
+    - name: Run Linter
+      run: make fmt-check 
+
+    - name: Terragrunt Apply
+      run: cd infra/config/dev/us-west-2/dev/ && terragrunt run-all apply --terragrunt-non-interactive
