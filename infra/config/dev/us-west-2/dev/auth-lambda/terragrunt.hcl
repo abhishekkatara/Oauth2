@@ -37,6 +37,7 @@ inputs = {
     GOOGLE_CLIENT_ID     = "google/GOOGLE_CLIENT_ID"
     GOOGLE_CLIENT_SECRET = "google/GOOGLE_CLIENT_SECRET"
     JWT_SECRET           = "auth/JWT_SECRET"
+    SESSION_SECRET       = "auth/SESSION_SECRET"
   }
   environment_variables = {
     LOG_LEVEL = "info"

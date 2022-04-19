@@ -5,19 +5,6 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL } = process.env
 
-passport.serializeUser((user, cb) => {
-  process.nextTick(() => {
-    cb(null, user)
-    // cb(null, { id: user.id, email: user.email, name: user.name })
-  })
-})
-
-passport.deserializeUser((user, cb) => {
-  process.nextTick(() => {
-    return cb(null, user)
-  })
-})
-
 const stategyOptions = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
@@ -37,7 +24,7 @@ passport.use(new GoogleStrategy(stategyOptions, strategyUserIdentification))
 const router = express.Router()
 
 router.get('/login/google', controllers.auth.saveRedirectURI, passport.authenticate('google'))
-router.get('/google/callback', controllers.auth.getRedirectURI, passport.authenticate('google', { failureRedirect: '/login' }), controllers.auth.generateToken)
+router.get('/google/callback', controllers.auth.getRedirectURI, passport.authenticate('google', { failureRedirect: '/error' }), controllers.auth.generateToken)
 
 router.post('/logout', (req, res) => {
   req.logout()

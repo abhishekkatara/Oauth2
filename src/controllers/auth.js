@@ -18,7 +18,7 @@ export const saveRedirectURI = async (req, res, next) => {
 }
 
 export const getRedirectURI = async (req, res, next) => {
-  logger.debug({ cookies: req.cookies })
+  logger.debug({ cookies: req.cookies, secureCookies: req.secureCookies })
   const { redirectURI = BASE_URL } = req.cookies
   req.redirectURI = redirectURI
   next()
