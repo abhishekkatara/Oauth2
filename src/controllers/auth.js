@@ -2,7 +2,7 @@ import { URL } from 'url'
 import jwt from 'jsonwebtoken'
 import logger from '../winston.js'
 
-const { JWT_SECRET, ISSUER, AUDIENCE, ENV, BASE_URL, COOKIE_DURATION = '3600' } = process.env
+const { JWT_SECRET, ISSUER, AUDIENCE, ENV, BASE_URL, COOKIE_DURATION = '3600', JWT_DURATION = '3600' } = process.env
 
 export const saveRedirectURI = async (req, res, next) => {
   const { redirect_uri: redirectURI } = req.query
@@ -24,6 +24,13 @@ export const getRedirectURI = async (req, res, next) => {
   next()
 }
 
+export const login = async (req, res, next) => {
+  req.login(req.user, async (err) => {
+    if (err) throw err
+    next()
+  })
+}
+
 export const generateToken = async (req, res) => {
   const user = {
     name: {
@@ -42,7 +49,7 @@ export const generateToken = async (req, res) => {
     issuer: ISSUER,
     audience: AUDIENCE,
     algorithm: 'HS256',
-    expiresIn: '1h'
+    expiresIn: parseInt(JWT_DURATION) * 1000
   }
 
   logger.debug({ user, tokenOpts })
@@ -65,5 +72,6 @@ export const generateToken = async (req, res) => {
 export default {
   generateToken,
   saveRedirectURI,
-  getRedirectURI
+  getRedirectURI,
+  login
 }
