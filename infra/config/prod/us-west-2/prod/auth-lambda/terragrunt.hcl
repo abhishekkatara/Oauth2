@@ -40,7 +40,7 @@ inputs = {
   }
   environment_variables = {
     LOG_LEVEL = "info"
-    BASE_URL  = "https://gw.api.tlynt.com/auth"
+    BASE_URL  = "https://api.tlynt.com/auth"
     ISSUER    = "https://tlynt.com"
     AUDIENCE  = "https://tlynt.com"
   }
