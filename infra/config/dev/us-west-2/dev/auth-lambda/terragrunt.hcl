@@ -37,11 +37,10 @@ inputs = {
     GOOGLE_CLIENT_ID     = "google/GOOGLE_CLIENT_ID"
     GOOGLE_CLIENT_SECRET = "google/GOOGLE_CLIENT_SECRET"
     JWT_SECRET           = "auth/JWT_SECRET"
-    SESSION_SECRET       = "auth/SESSION_SECRET"
   }
   environment_variables = {
     LOG_LEVEL = "info"
-    BASE_URL  = "https://api.dev.tlynt.com/auth"
+    BASE_URL  = "https://gw.api.dev.tlynt.com/auth"
     ISSUER    = "https://dev.tlynt.com"
     AUDIENCE  = "https://dev.tlynt.com"
   }
