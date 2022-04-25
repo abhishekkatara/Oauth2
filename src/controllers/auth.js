@@ -39,25 +39,99 @@ export const login = async (req, res, next) => {
   })
 }
 
-export const generateTokens = async (req, res) => {
+export const refreshToken = async (req, res) => {
+  const { refresh_token: refreshToken } = req.query
+
+  const token = jwt.verify(refreshToken, JWT_SECRET)
+  logger.debug(token)
+
+  const creds = await Credential.query()
+    .select('id', 'source_id', 'source', 'type', 'jti')
+    .where({ id: token.sub, jti: token.jti })
+    .limit(1)
+
+  logger.debug(creds)
+
+  if (creds.length === 0) {
+    res.status(401).json({
+      message: 'Invalid refresh token'
+    })
+    return
+  }
+
+  const { accessToken, refreshToken: newRefreshToken } = await generateTokens(creds[0])
+
+  res.json({
+    accessToken,
+    refreshToken: newRefreshToken
+  })
+}
+
+const generateTokens = async ({ sourceId, source, type }) => {
+  const ids = {
+    jti: cuid(),
+    user: uuidv4()
+  }
+
+  const creds = await Credential.query()
+    .select('*')
+    .where({ source_id: sourceId, source, type })
+    .limit(1)
+
+  logger.debug(creds)
+
+  if (creds.length) {
+    const updatedCreds = await Credential.query()
+      .update({
+        jti: ids.jti
+      })
+      .where({ source_id: sourceId, source, type })
+
+    ids.user = creds[0].id
+
+    logger.debug(updatedCreds)
+  } else {
+    const newCreds = await Credential.query()
+      .insert({
+        id: ids.user,
+        sourceId,
+        source,
+        type,
+        jti: ids.jti
+      })
+
+    logger.debug(newCreds)
+  }
+
+  logger.debug(ids)
+
+  const tokenOpts = {
+    subject: ids.user,
+    issuer: ISSUER,
+    audience: AUDIENCE,
+    algorithm: 'HS256',
+    expiresIn: parseInt(JWT_DURATION) * 1000
+  }
+
+  const refreshTokenOpts = {
+    ...tokenOpts,
+    jwtid: ids.jti,
+    expiresIn: parseInt(REFRESH_DURATION) * 1000
+  }
+
+  const accessToken = jwt.sign({}, JWT_SECRET, tokenOpts)
+  const refreshToken = jwt.sign({}, JWT_SECRET, refreshTokenOpts)
+
+  logger.debug({ accessToken, refreshToken })
+
+  return { subject: ids.user, accessToken, refreshToken }
+}
+
+export const redirectAuth = async (req, res) => {
   logger.debug(req.context)
 
-  const jti = cuid()
-  const id = uuidv4()
-
   try {
-    const creds = await Credential.query()
-      .insert({
-        id,
-        source_id: req.user.id,
-        source: req.context.source,
-        type: req.context.type,
-        jti
-      })
-      .onConflict(['source_id', 'source', 'type'])
-      .merge(['jti'])
-
-    logger.debug(creds)
+    const { subject, accessToken, refreshToken } = await generateTokens({ sourceId: req.user.id, source: req.context.source, type: req.context.type })
 
     const user = {
       name: {
@@ -71,27 +145,19 @@ export const generateTokens = async (req, res) => {
       picture: req.user.photos[0]?.value
     }
 
+    logger.debug({ user })
+
     const tokenOpts = {
-      subject: creds.id,
+      subject,
       issuer: ISSUER,
       audience: AUDIENCE,
       algorithm: 'HS256',
       expiresIn: parseInt(JWT_DURATION) * 1000
     }
 
-    const refreshTokenOpts = {
-      ...tokenOpts,
-      jwtid: jti,
-      expiresIn: parseInt(REFRESH_DURATION) * 1000
-    }
-
-    logger.debug({ user, tokenOpts })
-
-    const accessToken = jwt.sign({}, JWT_SECRET, tokenOpts)
     const idToken = jwt.sign(user, JWT_SECRET, tokenOpts)
-    const refreshToken = jwt.sign({}, JWT_SECRET, refreshTokenOpts)
 
-    logger.debug({ accessToken, idToken, refreshToken })
+    logger.debug({ idToken })
 
     const redirectURL = new URL(req.context.redirectURI)
 
@@ -108,7 +174,8 @@ export const generateTokens = async (req, res) => {
 }
 
 export default {
-  generateTokens,
+  redirectAuth,
+  refreshToken,
   saveContext,
   getContext,
   login

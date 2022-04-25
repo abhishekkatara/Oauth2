@@ -15,7 +15,6 @@ class Credential extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['id', 'source'],
       properties: {
         id: { type: 'string', maxLength: 36 },
         sourceId: { type: 'string', maxLength: 64 },
