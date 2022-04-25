@@ -23,8 +23,8 @@ passport.use(new GoogleStrategy(stategyOptions, strategyUserIdentification))
 
 const router = express.Router()
 
-router.get('/login/google', controllers.auth.saveRedirectURI, passport.authenticate('google'))
-router.get('/google/callback', controllers.auth.getRedirectURI, passport.authenticate('google', { failureRedirect: '/error' }), controllers.auth.login, controllers.auth.generateToken)
+router.get('/login/google', controllers.auth.saveContext, passport.authenticate('google'))
+router.get('/google/callback', controllers.auth.getContext, passport.authenticate('google', { failureRedirect: '/error' }), controllers.auth.login, controllers.auth.generateTokens)
 
 router.post('/logout', (req, res) => {
   req.logout()

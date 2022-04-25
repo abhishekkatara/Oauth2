@@ -4,8 +4,10 @@ export const up = async function (knex) {
     table.uuid('source_id', 64).index()
     table.string('source', 25).index().notNullable()
     table.string('type', 25).index().notNullable()
+    table.string('jti', 32).notNullable()
     table.string('created_at', 28).notNullable()
     table.string('updated_at', 28)
+    table.primary(['source_id', 'source', 'type'])
   })
 }
 

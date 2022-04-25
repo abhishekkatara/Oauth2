@@ -1,8 +1,4 @@
-import dotenv from 'dotenv'
-
-if (process.env.ENV === 'local') {
-  dotenv.config()
-}
+import 'dotenv/config'
 
 export default {
   client: 'mysql2',
@@ -15,7 +11,7 @@ export default {
   }),
   migrations: {
     directory: './migrations',
-    tableName: 'knex_talent_migrations'
+    tableName: 'knex_auth_migrations'
   },
   seeds: {
     directory: './seeds'

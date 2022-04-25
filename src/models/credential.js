@@ -7,9 +7,9 @@ const knex = Knex(client)
 
 Model.knex(knex)
 
-class Credentials extends Model {
+class Credential extends Model {
   static get tableName () {
-    return 'credentials'
+    return 'credential'
   }
 
   static get jsonSchema () {
@@ -20,7 +20,8 @@ class Credentials extends Model {
         id: { type: 'string', maxLength: 36 },
         sourceId: { type: 'string', maxLength: 64 },
         source: { type: 'string', enum: ['google', 'facebook', 'instagram', 'email', 'phone'] },
-        type: { type: 'string', enum: ['admin', 'talent', 'advertiser'] }
+        type: { type: 'string', enum: ['admin', 'talent', 'advertiser'] },
+        jti: { type: 'string', maxLength: 32 }
       }
     }
   }
@@ -38,4 +39,4 @@ class Credentials extends Model {
   }
 }
 
-export default Credentials
+export default Credential
