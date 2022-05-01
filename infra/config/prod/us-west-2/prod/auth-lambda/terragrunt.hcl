@@ -48,4 +48,5 @@ inputs = {
     SHORTURL_BUCKET = "tlynt-${local.env}-shorturls"
   }
   logs_retention = 14
+  iam_s3_bucket  = "tlynt-${local.env}-shorturls"
 }
