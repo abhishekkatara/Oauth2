@@ -37,12 +37,16 @@ inputs = {
     GOOGLE_CLIENT_ID     = "google/GOOGLE_CLIENT_ID"
     GOOGLE_CLIENT_SECRET = "google/GOOGLE_CLIENT_SECRET"
     JWT_SECRET           = "auth/JWT_SECRET"
+    MAGIC_LINK_SECRET    = "auth/MAGIC_LINK_SECRET"
   }
   environment_variables = {
-    LOG_LEVEL = "info"
-    BASE_URL  = "https://api.dev.tlynt.com/auth"
-    ISSUER    = "https://dev.tlynt.com"
-    AUDIENCE  = "https://dev.tlynt.com"
+    LOG_LEVEL       = "info"
+    BASE_URL        = "https://api.${local.env}.tlynt.com/auth"
+    ISSUER          = "https://${local.env}.tlynt.com"
+    AUDIENCE        = "https://${local.env}.tlynt.com"
+    SES_FROM        = "login@mail.${local.env}.tlynt.com"
+    SHORTURL_BUCKET = "tlynt-${local.env}-shorturls"
   }
   logs_retention = 14
+  iam_s3_bucket  = "tlynt-${local.env}-shorturls"
 }

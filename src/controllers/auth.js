@@ -33,6 +33,8 @@ export const getContext = async (req, res, next) => {
 }
 
 export const login = async (req, res, next) => {
+  logger.debug({ func: 'auth.login', ...req.user })
+
   req.login(req.user, async (err) => {
     if (err) throw err
     next()
@@ -127,23 +129,58 @@ const generateTokens = async ({ sourceId, source, type }) => {
   return { subject: ids.user, accessToken, refreshToken }
 }
 
+const userFromGoogle = user => {
+  return {
+    name: {
+      first: user.name?.givenName,
+      last: user.name?.familyName
+    },
+    email: {
+      value: user.emails[0]?.value,
+      verified: user.emails[0]?.verified
+    },
+    picture: user.photos[0]?.value
+  }
+}
+
+const userFromEmail = user => {
+  return {
+    email: {
+      value: user.destination,
+      verified: true
+    }
+  }
+}
+
+const userFromPhone = user => {
+  return {
+    phone: {
+      value: user.destination,
+      verified: true
+    }
+  }
+}
+
+const getUserBySource = (source, user) => {
+  switch (source) {
+    case 'google':
+      return userFromGoogle(user)
+    case 'email':
+      return userFromEmail(user)
+    case 'phone':
+      return userFromPhone(user)
+    default:
+      return {}
+  }
+}
+
 export const redirectAuth = async (req, res) => {
-  logger.debug(req.context)
+  logger.debug({ func: 'auth.redirectAuth', ...req.context })
 
   try {
     const { subject, accessToken, refreshToken } = await generateTokens({ sourceId: req.user.id, source: req.context.source, type: req.context.type })
 
-    const user = {
-      name: {
-        first: req.user.name.givenName,
-        last: req.user.name.familyName
-      },
-      email: {
-        value: req.user.emails[0]?.value,
-        verified: req.user.emails[0]?.verified
-      },
-      picture: req.user.photos[0]?.value
-    }
+    const user = getUserBySource(req.context.source, req.user)
 
     logger.debug({ user })
 

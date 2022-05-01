@@ -84,3 +84,8 @@ variable "logs_retention" {
   type        = number
   default     = null
 }
+
+variable "iam_s3_bucket" {
+  description = "The bucket the lambda needs to read from and write to"
+  type        = string
+}
