@@ -42,7 +42,7 @@ export const login = async (req, res, next) => {
 }
 
 export const refreshToken = async (req, res) => {
-  const { refresh_token: refreshToken } = req.query
+  const { refresh_token: refreshToken } = req.method === 'GET' ? req.query : req.body
 
   const token = jwt.verify(refreshToken, JWT_SECRET)
   logger.debug(token)

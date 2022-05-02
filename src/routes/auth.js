@@ -14,6 +14,7 @@ router.get('/login/magic', passport.authenticate('magicLink'), (req, res) => { r
 router.get('/magic/callback', passport.authenticate('magicLink'), controllers.auth.login, controllers.auth.redirectAuth)
 
 router.get('/token', controllers.auth.refreshToken)
+router.post('/token', controllers.auth.refreshToken)
 
 router.post('/logout', (req, res) => {
   req.logout()
