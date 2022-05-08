@@ -48,7 +48,7 @@ export const refreshToken = async (req, res) => {
   logger.debug(token)
 
   const creds = await Credential.query()
-    .select('id', 'source_id', 'source', 'type', 'jti')
+    .select()
     .where({ id: token.sub, jti: token.jti })
     .limit(1)
 
