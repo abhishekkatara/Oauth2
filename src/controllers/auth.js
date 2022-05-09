@@ -112,13 +112,13 @@ const generateTokens = async ({ sourceId, source, type }) => {
     issuer: ISSUER,
     audience: AUDIENCE,
     algorithm: 'HS256',
-    expiresIn: parseInt(JWT_DURATION) * 1000
+    expiresIn: parseInt(JWT_DURATION)
   }
 
   const refreshTokenOpts = {
     ...tokenOpts,
     jwtid: ids.jti,
-    expiresIn: parseInt(REFRESH_DURATION) * 1000
+    expiresIn: parseInt(REFRESH_DURATION)
   }
 
   const accessToken = jwt.sign({}, JWT_SECRET, tokenOpts)
@@ -189,7 +189,7 @@ export const redirectAuth = async (req, res) => {
       issuer: ISSUER,
       audience: AUDIENCE,
       algorithm: 'HS256',
-      expiresIn: parseInt(JWT_DURATION) * 1000
+      expiresIn: parseInt(JWT_DURATION)
     }
 
     const idToken = jwt.sign(user, JWT_SECRET, tokenOpts)
