@@ -30,7 +30,7 @@ export const send = async (email, subject, html, text) => {
       CcAddresses: [],
       ToAddresses: [email]
     },
-    FromEmailAddress: `TLYNT <${SES_FROM}>`
+    FromEmailAddress: `GMAIL <${SES_FROM}>`
   }
 
   logger.debug(params)

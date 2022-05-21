@@ -29,7 +29,7 @@ const magicVerify = async (payload, cb) => {
 
 const sendMagicLinkEmail = async (email, href) => {
   const link = await createShortLink(href)
-  const subject = 'TLYNT - Login'
+  const subject = 'Gmail Auth - Login'
 
   const html = `
     <p>

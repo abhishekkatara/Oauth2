@@ -1,5 +1,5 @@
 {
-  "name": "tlynt-auth-api",
+  "name": "auth-api",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TLYNT/tlynt-auth-api.git"
+    "url": "git+https://github.com/mayank/auth-api.git"
   },
   "author": "Tech Holding",
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/TLYNT/tlynt-auth-api/issues"
+    "url": "https://github.com/mayank/auth-api/issues"
   },
-  "homepage": "https://github.com/TLYNT/tlynt-auth-api#readme",
+  "homepage": "https://github.com/mayank/auth-api#readme",
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
@@ -40,7 +40,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "husky": "^7.0.4",
     "jest": "^27.4.7",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.16"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.81.0",
